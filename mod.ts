@@ -1,6 +1,8 @@
 import { transform, compile } from "https://deno.land/x/astro_compiler@v0.1.0-canary.24/mod.ts";
 import { exists } from "https://deno.land/std@0.105.0/fs/exists.ts";
 import { extname } from "https://deno.land/std@0.105.0/path/mod.ts";
+import { mime } from "https://deno.land/x/mimetypes@v1.0.0/mod.ts"
+
 
 async function getHTML(pathname: string) {
   if (pathname.endsWith('/')) {
@@ -18,7 +20,6 @@ async function getHTML(pathname: string) {
       const html = await compile(template)
       return html;
     } catch (e) {
-      console.log(e);
       return `<h1>Error!</h1><pre>${e}</pre>`
     }
   }
@@ -28,8 +29,16 @@ async function getHTML(pathname: string) {
 
 async function handleRequest(request: Request) {
   const { pathname } = new URL(request.url);
+  if (extname(pathname) !== '' && await exists(`./public/${pathname}`)) {
+    const content = await Deno.readFile(new URL(`./public/${pathname}`, import.meta.url));
+    const contentType = mime.getType(extname(pathname).slice(1)) || 'text/plain';
+    return new Response(content, {
+      headers: {
+        "content-type": contentType
+      }
+    })
+  }
   const html = await getHTML(pathname);
-  console.log(html);
 
   return new Response(html, {
       headers: {
