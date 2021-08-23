@@ -1,17 +1,35 @@
 import { transform, compile } from "https://deno.land/x/astro_compiler@v0.1.0-canary.24/mod.ts";
-
-const src = new URL('./src', import.meta.url);
+import { exists } from "https://deno.land/std@0.105.0/fs/exists.ts";
+import { extname } from "https://deno.land/std@0.105.0/path/mod.ts";
 
 async function getHTML(pathname: string) {
-  const content = await Deno.readFile(new URL(pathname, src));
-  const template = await transform(content.toString());
-  const html = await compile(template);
-  return html;
+  if (pathname.endsWith('/')) {
+    pathname = pathname + 'index.astro'
+  }
+  if (extname(pathname) == '') {
+    pathname = pathname + '.astro'
+  }
+  const fileURL = new URL('./src/pages' + pathname, import.meta.url);
+
+  if (await exists(`./src/pages/${pathname}`)) {
+    try {
+      const content = await Deno.readTextFile(fileURL);
+      const template = await transform(content);
+      const html = await compile(template)
+      return html;
+    } catch (e) {
+      console.log(e);
+      return `<h1>Error!</h1><pre>${e}</pre>`
+    }
+  }
+
+  return `<h1>404</h1><pre>Unable to find ${pathname}</pre>`
 }
+
 async function handleRequest(request: Request) {
   const { pathname } = new URL(request.url);
-  console.log(pathname);
   const html = await getHTML(pathname);
+  console.log(html);
 
   return new Response(html, {
       headers: {
