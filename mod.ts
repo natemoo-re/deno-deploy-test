@@ -1,4 +1,4 @@
-import { transform, compile } from "https://deno.land/x/astro_compiler@v0.1.0-canary.24/mod.ts";
+import { transform, compile } from "https://deno.land/x/astro_compiler@v0.1.0-canary.44/mod.ts";
 import { exists } from "https://deno.land/std@0.105.0/fs/exists.ts";
 import { extname } from "https://deno.land/std@0.105.0/path/mod.ts";
 import { mime } from "https://deno.land/x/mimetypes@v1.0.0/mod.ts"
