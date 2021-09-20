@@ -17,7 +17,8 @@ async function getHTML(pathname: string) {
     try {
       const content = await Deno.readTextFile(fileURL);
       const template = await transform(content);
-      const html = await compile(template)
+      console.log(template.code);
+      const html = await compile(template);
       return html;
     } catch (e) {
       return `<h1>Error!</h1><pre>${e}</pre>`
